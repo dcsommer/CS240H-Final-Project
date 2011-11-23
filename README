@@ -1,0 +1,33 @@
+==========================================
+CS240H Final Project - Historical Debugger
+==========================================
+authors: Daniel Sommermann, Michael Gummelt
+
+
+For this project, we define a toy language to implement our debugger
+on. The BNF of the language is given below:
+
+f(x1, .., xn) = e
+
+
+e = c1 | ... | cn (constants)
+    x
+    e1 + e2
+    e1 - e2
+    e1 * e2
+    e1 / e2
+    e1 == e2
+    !e1
+    e1 && e2
+    e1 || e2
+    e1 == e2
+    e1 >= e2
+    e1 <= e2
+    e1 < e2
+    e1 > e2
+    if e1 then e2 else e3
+    f(e1, ..., en)
+
+There must be exactly one function called 'main' in every program. The
+value of the expression of main will be printed once the value of the
+'main' expression has been computed.
