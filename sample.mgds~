@@ -1,3 +1,0 @@
-// This file computes fibonacci numbers in an inefficient way
-
-fib(n) = 
