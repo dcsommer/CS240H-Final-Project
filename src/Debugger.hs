@@ -4,8 +4,9 @@ debugLoop :: Interpreter a => a -> IO ()
 debugLoop interpreter = 
   finished <- isEOF
   Control.Monad.unless finished $ do
-    inputLine <- getLine
-    -- handle inputLine, query the interpreter
+    inputWords <- liftM words $ getLine
+    
+    -- handle inputWords, query the interpreter
     debugLoop interpreter
 
 main = do
