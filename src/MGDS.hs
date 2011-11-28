@@ -20,6 +20,12 @@ data Expression = Constant Integer
                 | Greater Expression Expression
                 | Less Expression Expression
                 | If Expression Expression Expression
-                | Function [String] Expression
                 | FunctionCall String [Expression]
+                  
+-- A function consists of a name, a list of agument variable names, and an
+-- expression for its body
+data Function = Function String [String] Expression
 
+-- A program is simply a list of functions, one of which must be named
+-- "main" 
+newtype Program = Program [Function]
