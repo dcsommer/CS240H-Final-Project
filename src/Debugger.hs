@@ -1,17 +1,24 @@
 module Debugger where
 
-debugLoop :: Interpreter a => a -> IO ()
-debugLoop interpreter = 
+import Parser
+import Interpreter
+import MGDS
+
+import Control.Monad
+import System.Environment
+import System.IO
+import qualified Data.ByteString as B
+
+debugLoop :: Program -> IO ()
+debugLoop program = do
   finished <- isEOF
   Control.Monad.unless finished $ do
     inputWords <- liftM words $ getLine
-    
     -- handle inputWords, query the interpreter
-    debugLoop interpreter
+    debugLoop program
 
 main = do
   toDebug <- liftM head getArgs
-  interpreter <- interpret toDebug
-  debugLoop interpreter
+  programText <- B.readFile toDebug
+  debugLoop $ parseMGDS programText
   return ()
-  -- loop on input

@@ -1,11 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
 module MGDS where
-
-import qualified Data.Attoparsec as P
-import qualified Data.Attoparsec.Char8 as P8
-
-import qualified Data.ByteString as B
-import qualified Data.ByteString.Char8 as B8
 
 data Expression = Constant Integer
                 | Var String
