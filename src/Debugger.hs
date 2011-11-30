@@ -20,5 +20,5 @@ debugLoop program = do
 main = do
   toDebug <- liftM head getArgs
   programText <- B.readFile toDebug
-  debugLoop $ parseMGDS programText
+  either print debugLoop $ parseMGDS programText
   return ()
