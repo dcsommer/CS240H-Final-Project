@@ -14,6 +14,7 @@ data Expression = Constant Integer
                 | Less Expression Expression
                 | If Expression Expression Expression
                 | FunctionCall String [Expression]
+                  deriving Show
                   
 -- A function consists of a name, a list of agument variable names, and an
 -- expression for its body
