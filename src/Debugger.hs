@@ -1,5 +1,3 @@
-module Debugger where
-
 import Parser
 import Interpreter
 import MGDS

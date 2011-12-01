@@ -16,69 +16,64 @@ import Data.Word (Word8)
 import Data.Char
 
 parseMGDS :: ByteString -> Either String Program
-parseMGDS path = P.parseOnly program path
+parseMGDS text = P.parseOnly program text
+                 --TODO give empty bytestring to indicate end of input
 
 program :: Parser Program
 program = Program <$> go
   where go  =  ((:) <$> function <*> go)
-           <|> (pure [])
+           <|> space *> comment *> go
+           <|> space *> P.endOfInput *> (pure [])
 
 function :: Parser Function
 function = space *>  
-           (Function <$> name <*> (parseTuple name) <*> expression)
+           (Function <$> name <*> (parseTuple name) <*
+                         matchStr "=" <*> expression)
            <* space
 
-
--- TODO FIXME: make "2+3" use the 'add' parser, not 'constant'
 expression :: Parser Expression
-expression = space *> (constant <|> var <|> add <|> subtractParse <|>
-                       multiply <|> divide <|> equals <|> notParse <|>
-                       logicalAnd <|> logicalOr <|> greater<|> less <|>
-                       ifParse <|> functionCall) <* space
-
-constant :: Parser Expression
-constant = Constant <$> P8.decimal
-
-var :: Parser Expression
-var = Var <$> name
-
-add :: Parser Expression
-add = binop Add "+"
-
-subtractParse :: Parser Expression
-subtractParse = binop Subtract "-"
-
-multiply :: Parser Expression
-multiply = binop Multiply "*"
-
-divide :: Parser Expression
-divide = binop Divide "/"
-
-equals :: Parser Expression
-equals = binop Equals "=="
-
-notParse :: Parser Expression
-notParse = Not <$> (matchStr "!" *> expression)
-
-logicalAnd :: Parser Expression
-logicalAnd = binop LogicalAnd "&&"
-
-logicalOr :: Parser Expression
-logicalOr = binop LogicalOr "||"
-
-greater :: Parser Expression
-greater = binop Greater ">"
-
-less :: Parser Expression
-less = binop Less "<"
+expression  =  ifParse 
+           <|> functionCall
+           <|> comp
+           <|> nested
 
 ifParse :: Parser Expression
-ifParse = If <$> (matchStr "if" *> expression)
-             <*> (matchStr "then" *> expression)
-             <*> (matchStr "else" *> expression)
+ifParse = If <$> (string "if " *> space *> expression)
+             <*> (matchStr "then " *> expression)
+             <*> (matchStr "else " *> expression)
 
 functionCall :: Parser Expression
 functionCall = FunctionCall <$> name <*> (parseTuple expression)
+
+comp :: Parser Expression
+comp  =  binop Equals "==" logic
+     <|> binop Less "<" logic
+     <|> binop Greater ">" logic
+     <|> logic
+
+logic :: Parser Expression
+logic  =  binop LogicalAnd "&&" val
+      <|> binop LogicalOr "||" val
+      <|> Not <$> (matchStr "!" *> factor)
+      <|> val
+
+val :: Parser Expression
+val  =  binop Add "+" term
+    <|> binop Subtract "-" term
+    <|> term
+
+term :: Parser Expression
+term  =  binop Multiply "*" factor
+     <|> binop Divide "/" factor
+     <|> factor
+
+factor :: Parser Expression
+factor  =  Constant <$> P8.decimal
+       <|> Var <$> name
+       <|> nested
+
+nested :: Parser Expression
+nested = lparen *> expression <* rparen
 
 -- Parser Helpers
 
@@ -93,12 +88,12 @@ parseTuple elemParse =
         list' =  (:) <$> (comma *> elemParse) <*> list'
                  <|> pure [] -- no more elements in the tuple
 
-binop ctor op = ctor <$> expression <* matchStr op <*> expression
+binop ctor op nxt = ctor <$> nxt <* matchStr op <*> nxt
 
 --- Tokenizing
 space   = P8.takeWhile isSpace
 matchStr op = space *> string op *> space
 comma   = matchStr ","
-lparen  = matchStr "("
-rparen  = matchStr ")"
+lparen  = string "(" *> space
+rparen  = space *> string ")"
 comment = string "//" *> P.takeTill P8.isEndOfLine

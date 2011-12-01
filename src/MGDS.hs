@@ -19,7 +19,9 @@ data Expression = Constant Integer
 -- A function consists of a name, a list of agument variable names, and an
 -- expression for its body
 data Function = Function String [String] Expression
+                deriving Show
 
 -- A program is simply a list of functions, one of which must be named
 -- "main" 
 newtype Program = Program [Function]
+                  deriving Show
