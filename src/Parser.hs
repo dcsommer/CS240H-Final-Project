@@ -17,7 +17,6 @@ import Data.Char
 
 parseMGDS :: ByteString -> Either String Program
 parseMGDS text = P.parseOnly program text
-                 --TODO give empty bytestring to indicate end of input
 
 program :: Parser Program
 program = Program <$> go

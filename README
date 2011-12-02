@@ -9,8 +9,8 @@ on. The BNF of the language is given below:
 
 f(x1, .., xn) = e
 
-
 e = c1 | ... | cn (constants)
+    (e)
     x
     e1 + e2
     e1 - e2
@@ -21,8 +21,8 @@ e = c1 | ... | cn (constants)
     e1 && e2
     e1 || e2
     e1 == e2
-    e1 > e2
     e1 < e2
+    e1 > e2
     if e1 then e2 else e3
     f(e1, ..., en)
 
