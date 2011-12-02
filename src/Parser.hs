@@ -22,7 +22,6 @@ parseMGDS text = P.parseOnly program text
 program :: Parser Program
 program = Program <$> go
   where go  =  ((:) <$> function <*> go)
-           <|> space *> comment *> go
            <|> space *> P.endOfInput *> (pure [])
 
 function :: Parser Function
@@ -33,7 +32,6 @@ function = space *>
 
 expression :: Parser Expression
 expression  =  ifParse 
-           <|> functionCall
            <|> comp
            <|> nested
 
@@ -52,9 +50,9 @@ comp  =  binop Equals "==" logic
      <|> logic
 
 logic :: Parser Expression
-logic  =  binop LogicalAnd "&&" val
+logic  =  Not <$> (matchStr "!" *> factor)
+      <|> binop LogicalAnd "&&" val
       <|> binop LogicalOr "||" val
-      <|> Not <$> (matchStr "!" *> factor)
       <|> val
 
 val :: Parser Expression
@@ -68,9 +66,11 @@ term  =  binop Multiply "*" factor
      <|> factor
 
 factor :: Parser Expression
-factor  =  Constant <$> P8.decimal
+factor  =  nested
+       <|> ifParse
+       <|> functionCall
+       <|> Constant <$> P8.decimal
        <|> Var <$> name
-       <|> nested
 
 nested :: Parser Expression
 nested = lparen *> expression <* rparen
@@ -78,7 +78,7 @@ nested = lparen *> expression <* rparen
 -- Parser Helpers
 
 name :: Parser String
-name = B8.unpack <$> P8.takeWhile1 isLower
+name = B8.unpack <$> P8.takeWhile1 isAlpha
 
 parseTuple :: Parser a -> Parser [a]
 parseTuple elemParse = 
@@ -91,7 +91,9 @@ parseTuple elemParse =
 binop ctor op nxt = ctor <$> nxt <* matchStr op <*> nxt
 
 --- Tokenizing
-space   = P8.takeWhile isSpace
+space   =  (spaces *> comment *> space) <|> spaces
+  where spaces = P8.takeWhile isSpace 
+
 matchStr op = space *> string op *> space
 comma   = matchStr ","
 lparen  = string "(" *> space
