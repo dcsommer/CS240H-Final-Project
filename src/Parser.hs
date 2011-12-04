@@ -7,21 +7,26 @@ import Data.List
 import Data.ByteString (ByteString)
 import qualified Data.ByteString.Char8 as B8
 
-import Data.Attoparsec as P
-import Data.Attoparsec.Char8 (char8, endOfLine)
-import qualified Data.Attoparsec.Char8 as P8
-
-import Control.Applicative hiding (many)
+import Control.Monad
+import Control.Applicative hiding (many, (<|>))
 import Data.Word (Word8)
 import Data.Char
 
-parseMGDS :: ByteString -> Either String Program
-parseMGDS text = P.parseOnly program text
+---- Parsec
+import qualified Text.Parsec as P
+import Text.Parsec.ByteString
+--import Text.Parsec.Token
+import Text.Parsec.Prim
+---- End Parsec
+
+parseMGDS :: String -> ByteString -> Either String Program
+parseMGDS fname input = either (Left . show) (Right . id) $
+                          runParser program () fname input
 
 program :: Parser Program
 program = Program <$> go
   where go  =  ((:) <$> function <*> go)
-           <|> space *> P.endOfInput *> (pure [])
+           <|> space *> P.eof *> (pure [])
 
 function :: Parser Function
 function = space *>  
@@ -35,7 +40,7 @@ expression  =  ifParse
            <|> nested
 
 ifParse :: Parser Expression
-ifParse = If <$> (string "if " *> space *> expression)
+ifParse = If <$> (P.string "if " *> space *> expression)
              <*> (matchStr "then " *> expression)
              <*> (matchStr "else " *> expression)
 
@@ -68,7 +73,7 @@ factor :: Parser Expression
 factor  =  nested
        <|> ifParse
        <|> functionCall
-       <|> Constant <$> P8.decimal
+       <|> Constant <$> read <$> (many P.digit)
        <|> Var <$> name
 
 nested :: Parser Expression
@@ -77,7 +82,7 @@ nested = lparen *> expression <* rparen
 -- Parser Helpers
 
 name :: Parser String
-name = B8.unpack <$> P8.takeWhile1 isAlpha
+name = B8.unpack <$> P.letter <*> (many P.alphaNum)
 
 parseTuple :: Parser a -> Parser [a]
 parseTuple elemParse = 
@@ -88,13 +93,14 @@ parseTuple elemParse =
                  <|> pure [] -- no more elements in the tuple
 
 binop ctor op nxt = ctor <$> nxt <* matchStr op <*> nxt
+line = P.sourceLine . P.getPosition
+col = P.sourceColumn . P.getPosition
 
 --- Tokenizing
-space   =  (spaces *> comment *> space) <|> spaces
-  where spaces = P8.takeWhile isSpace 
+space   =  (P.spaces *> comment *> P.spaces) <|> P.spaces
 
-matchStr op = space *> string op *> space
+matchStr op = space *> P.string op *> space
 comma   = matchStr ","
-lparen  = string "(" *> space
-rparen  = space *> string ")"
-comment = string "//" *> P.takeTill P8.isEndOfLine
+lparen  = P.string "(" *> space
+rparen  = space *> P.string ")"
+comment = P.string "//" *> many (P.noneOf "\n")
