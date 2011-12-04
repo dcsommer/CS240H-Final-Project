@@ -89,7 +89,7 @@ term  =  P.try (binop Multiply "*" factor)
      <|> factor
 
 factor :: Parser Expression
-factor  =  nested
+factor  =  P.try nested
        <|> P.try ifParse
        <|> P.try functionCall
        <|> P.try (Var <$> lineInfo <*> name)
@@ -123,7 +123,6 @@ col = do pos <- P.getPosition; return $ P.sourceColumn pos
 --- Tokenizing
 space  =  P.try (P.spaces *> comment *> space)
       <|> P.spaces
-
 matchStr op = space *> P.string op *> space
 comma   = matchStr ","
 lparen  = P.string "(" *> space
