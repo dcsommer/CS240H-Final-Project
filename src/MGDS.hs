@@ -1,19 +1,24 @@
+{-# LANGUAGE MagicHash #-}
 module MGDS where
 
-data Expression = Constant Integer
-                | Var String
-                | Add Expression Expression
-                | Subtract Expression Expression
-                | Multiply Expression Expression
-                | Divide Expression Expression
-                | Equals Expression Expression
-                | Not Expression
-                | LogicalAnd Expression Expression
-                | LogicalOr Expression Expression
-                | Greater Expression Expression
-                | Less Expression Expression
-                | If Expression Expression Expression
-                | FunctionCall String [Expression]
+import GHC.Prim
+
+-- The last two arguments to each constructor is the line number and
+-- column number where it appears in the file
+data Expression = Constant Integer --Int# Int#
+                | Var String --Int# Int#
+                | Add Expression Expression --Int# Int#
+                | Subtract Expression Expression --Int# Int#
+                | Multiply Expression Expression --Int# Int#
+                | Divide Expression Expression --Int# Int#
+                | Equals Expression Expression --Int# Int#
+                | Not Expression --Int# Int#
+                | LogicalAnd Expression Expression --Int# Int#
+                | LogicalOr Expression Expression --Int# Int#
+                | Greater Expression Expression --Int# Int#
+                | Less Expression Expression --Int# Int#
+                | If Expression Expression Expression --Int# Int#
+                | FunctionCall String [Expression] --Int# Int#
                   deriving Show
                   
 -- A function consists of a name, a list of agument variable names, and an
