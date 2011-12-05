@@ -5,5 +5,13 @@ module Interpreter() where
 
 import MGDS
 
-run :: Program -> a
+run :: Program -> Integer
+
+runW :: Program -> SymTable -> Integer
+
+run Constant x sym = x
+
+run Var
+
+
 run _ = undefined
