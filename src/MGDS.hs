@@ -18,8 +18,13 @@ data Expression = Constant Integer
                   
 -- A function consists of a name, a list of agument variable names, and an
 -- expression for its body
-data Function = Function String [String] Expression
+data Function = Function {
+     getName :: String,
+     getParams :: [String],
+     getExp :: Expression
+    }
                 deriving Show
+                     
 
 -- A program is simply a list of functions, one of which must be named
 -- "main" 
