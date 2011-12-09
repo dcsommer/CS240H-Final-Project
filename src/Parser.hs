@@ -82,7 +82,7 @@ nested = lparen *> expression <* rparen
 -- Parser Helpers
 
 name :: Parser String
-name = B8.unpack <$> P.letter <*> (many P.alphaNum)
+name = (:) <$> P.letter <*> many P.alphaNum
 
 parseTuple :: Parser a -> Parser [a]
 parseTuple elemParse = 
@@ -93,11 +93,13 @@ parseTuple elemParse =
                  <|> pure [] -- no more elements in the tuple
 
 binop ctor op nxt = ctor <$> nxt <* matchStr op <*> nxt
-line = P.sourceLine . P.getPosition
-col = P.sourceColumn . P.getPosition
+line :: Parser Int
+line =  do p <- P.getPosition; return $ P.sourceLine p
+col :: Parser Int
+col = do p <- P.getPosition; return $ P.sourceColumn p
 
 --- Tokenizing
-space   =  (P.spaces *> comment *> P.spaces) <|> P.spaces
+space   =  (P.spaces *> comment *> space) <|> P.spaces
 
 matchStr op = space *> P.string op *> space
 comma   = matchStr ","
