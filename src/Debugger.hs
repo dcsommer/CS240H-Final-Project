@@ -18,6 +18,6 @@ debugLoop program = do
 main = do
   toDebug <- liftM head getArgs
   programText <- B.readFile toDebug
-  program <- parseMGDS toDebug programText
+  let program = parseMGDS toDebug programText
   either print (\prog -> print (run prog)) program
   return ()
