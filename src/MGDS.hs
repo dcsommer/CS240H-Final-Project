@@ -1,34 +1,45 @@
-{-# LANGUAGE MagicHash #-}
+{-# LANGUAGE BangPatterns #-}
 module MGDS where
 
 import GHC.Prim
 
+--Fields are row, column
+data LineInfo = LineInfo {-# UNPACK #-} !Int {-# UNPACK #-} !Int
+                deriving Show
+
 -- The last two arguments to each constructor is the line number and
 -- column number where it appears in the file
-data Expression = Constant Integer --Int# Int#
-                | Var String --Int# Int#
-                | Add Expression Expression --Int# Int#
-                | Subtract Expression Expression --Int# Int#
-                | Multiply Expression Expression --Int# Int#
-                | Divide Expression Expression --Int# Int#
-                | Equals Expression Expression --Int# Int#
-                | Not Expression --Int# Int#
-                | LogicalAnd Expression Expression --Int# Int#
-                | LogicalOr Expression Expression --Int# Int#
-                | Greater Expression Expression --Int# Int#
-                | Less Expression Expression --Int# Int#
-                | If Expression Expression Expression --Int# Int#
-                | FunctionCall String [Expression] --Int# Int#
-                  deriving Show
-                  
--- A function consists of a name, a list of agument variable names, and an
--- expression for its body
-data Function = Function {
-     getName :: String,
-     getParams :: [String],
-     getExp :: Expression
-    }
+data Expression = Constant LineInfo Integer
+                | Var LineInfo String
+                | Add LineInfo Expression Expression
+                | Subtract LineInfo Expression Expression
+                | Multiply LineInfo Expression Expression
+                | Divide LineInfo Expression Expression
+                | Equals LineInfo Expression Expression
+                | Not LineInfo Expression
+                | LogicalAnd LineInfo Expression Expression
+                | LogicalOr LineInfo Expression Expression
+                | Greater LineInfo Expression Expression
+                | Less LineInfo Expression Expression
+                | If LineInfo Expression Expression Expression
+                | FunctionCall LineInfo String [Expression]
                 deriving Show
+                  
+
+--TODO: make "If" a statement?
+data Statement = Assignment LineInfo String Expression
+               | Return LineInfo Expression
+               deriving Show
+                           
+-- A function consists of a name, a list of agument variable names, and a
+-- a list of statements for its body. The last statement must be a return
+-- statement.
+data Function = Function {
+  getLineInfo :: LineInfo,
+  getName :: String,
+  getParams :: [String],
+  getBody :: [Statement]
+} deriving Show
                      
 
 -- A program is simply a list of functions, one of which must be named

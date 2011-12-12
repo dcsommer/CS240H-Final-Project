@@ -18,36 +18,36 @@ getFunc fenv fname = head $ filter (\f -> (getName f) == fname) fenv
 
 -- run a program
 run :: Program -> Integer
-run (Program fenv) = eval (getExp (last fenv)) [] fenv
+run (Program fenv) = eval (getBody (last fenv)) [] fenv
 
 -- eval an expression
 eval :: Expression -> Env -> FEnv -> Integer
 
-eval (Constant x) _ _ = x
-eval (Var s) env _ = getVar env s    
+eval (Constant _ x) _ _ = x
+eval (Var _ s) env _ = getVar env s    
 
-eval (Add      e1 e2) env fenv = intFunc (+) e1 e2 env fenv
-eval (Subtract e1 e2) env fenv = intFunc (-) e1 e2 env fenv
-eval (Multiply e1 e2) env fenv = intFunc (*) e1 e2 env fenv
-eval (Divide   e1 e2) env fenv = intFunc div e1 e2 env fenv
+eval (Add      _ e1 e2) env fenv = intFunc (+) e1 e2 env fenv
+eval (Subtract _ e1 e2) env fenv = intFunc (-) e1 e2 env fenv
+eval (Multiply _ e1 e2) env fenv = intFunc (*) e1 e2 env fenv
+eval (Divide   _ e1 e2) env fenv = intFunc div e1 e2 env fenv
 
-eval (Equals     e1 e2) env fenv = boolFunc (==) e1 e2 env fenv
-eval (LogicalAnd e1 e2) env fenv = boolFunc (&&) e1 e2 env fenv
-eval (LogicalOr  e1 e2) env fenv = boolFunc (||) e1 e2 env fenv
+eval (Equals     _ e1 e2) env fenv = boolFunc (==) e1 e2 env fenv
+eval (LogicalAnd _ e1 e2) env fenv = boolFunc (&&) e1 e2 env fenv
+eval (LogicalOr  _ e1 e2) env fenv = boolFunc (||) e1 e2 env fenv
 
-eval (Greater    e1 e2) env fenv = boolToInt $ intFunc (> ) e1 e2 env fenv
-eval (Less       e1 e2) env fenv = boolToInt $ intFunc (< ) e1 e2 env fenv
+eval (Greater    _ e1 e2) env fenv = boolToInt $ intFunc (> ) e1 e2 env fenv
+eval (Less       _ e1 e2) env fenv = boolToInt $ intFunc (< ) e1 e2 env fenv
                               
-eval (Not e) env fenv = boolToInt $ (eval e env fenv) == 0
+eval (Not _ e) env fenv = boolToInt $ (eval e env fenv) == 0
                         
-eval (If cond e1 e2) env fenv = if (eval cond env fenv) /= 0
-                                then (eval e1 env fenv)
-                                else (eval e2 env fenv)
+eval (If _ cond e1 e2) env fenv = if (eval cond env fenv) /= 0
+                                  then (eval e1 env fenv)
+                                  else (eval e2 env fenv)
   
-eval (FunctionCall fname es) env fenv =
+eval (FunctionCall _ fname es) env fenv =
     let vals = map (\e -> eval e env fenv) es
         f = getFunc fenv fname
-        exp = getExp f
+        exp = getBody f
         env' = (zip (getParams f) vals) in
     eval exp env' fenv
 

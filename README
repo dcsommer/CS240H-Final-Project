@@ -7,7 +7,12 @@ authors: Daniel Sommermann, Michael Gummelt
 For this project, we define a toy language to implement our debugger
 on. The BNF of the language is given below:
 
-f(x1, .., xn) = e
+f(x1, .., xn) { s; [s;] }
+
+s = var = e
+    return e
+
+Every function must return a value.
 
 e = c1 | ... | cn (constants)
     (e)
@@ -26,6 +31,5 @@ e = c1 | ... | cn (constants)
     if e1 then e2 else e3
     f(e1, ..., en)
 
-There must be exactly one function called 'main' in every program. The
-value of the expression of main will be printed once the value of the
-'main' expression has been computed.
+There must be exactly one function called 'main' in every text file. The 
+value of the return of main will be printed once it has been computed.
