@@ -37,5 +37,6 @@ returnif(). If the first argument to returnif is non-zero, the second
 argument is evaluated and returned. The return keyword may only be used as
 the last statement in a function body. 
 
+e interpreter. Also changed the semantics and grammar of the language (added assignment and return statements)
 There must be exactly one function called 'main' in every text file. The 
 value of the return of main will be printed once it has been computed.

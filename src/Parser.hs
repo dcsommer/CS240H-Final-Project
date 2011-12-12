@@ -35,7 +35,7 @@ function = space *>
 statements :: Parser [Statement]
 statements  =  (:) <$> statement <* matchStr ";" <*> statements
            <|> pure []
-  
+
 statement :: Parser Statement
 statement  =  P.try (Return <$> lineInfo
                              <* matchStr "return "
@@ -93,7 +93,7 @@ factor  =  P.try nested
        <|> P.try ifParse
        <|> P.try functionCall
        <|> P.try (Var <$> lineInfo <*> name)
-       <|> P.try (Constant <$> lineInfo <*> (read <$> many P.digit))
+       <|> Constant <$> lineInfo <*> (read <$> many P.digit)
 
 nested :: Parser Expression
 nested = lparen *> expression <* rparen
