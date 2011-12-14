@@ -28,6 +28,7 @@ data Expression = Constant LineInfo Integer
 
 --TODO: make "If" a statement?
 data Statement = Assignment LineInfo String Expression
+               | ReturnIf LineInfo Expression Expression
                | Return LineInfo Expression
                deriving Show
                            

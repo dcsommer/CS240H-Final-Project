@@ -6,6 +6,7 @@ import Hindsight
 import Control.Monad
 import System.Environment
 import System.IO
+import System.Exit
 import qualified Data.ByteString as B
 
 (+++) a b = a ++ ('\n':b)
@@ -40,6 +41,7 @@ debugLoop2 program@(Program fenv) = do
         "s"     -> showShortState map (read (args !! 0)) fenv
         "fs"    -> showFullState  map (read (args !! 0)) fenv
         "p"     -> putStrLn $ show program
+        "exit"  -> exitSuccess
         _       -> unknown
       _          -> unknown
     debugLoop2 program

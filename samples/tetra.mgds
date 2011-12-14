@@ -1,0 +1,17 @@
+// returns the the number of balls in a triangular pyramid with
+// n balls in one side of the base
+tetra(n) {
+  returnif n < 2, n;
+  ballsHere = tetraLevel(n);
+  restOfPyramid = tetra(n-1);
+  return ballsHere + restOfPyramid;
+}
+
+tetraLevel(n) {
+  returnif n < 2, n;
+  return tetraLevel(n-1) + n;
+}
+
+main() {
+  return tetra(5);
+}
