@@ -7,12 +7,10 @@ authors: Daniel Sommermann, Michael Gummelt
 For this project, we define a toy language to implement our debugger
 on. The BNF of the language is given below:
 
-f(x1, .., xn) { s; [s;] }
+f = fn(x1, .., xn) { s; [s;] }
 
 s = var = e
     return e
-
-Every function must return a value.
 
 e = c1 | ... | cn (constants)
     (e)
@@ -30,6 +28,10 @@ e = c1 | ... | cn (constants)
     e1 > e2
     if e1 then e2 else e3
     f(e1, ..., en)
+
+Every function must return a value (that is, have a return
+statement). Explicitly, there must be exactly one return statement in each
+function, and it must be the last statement in the body.
 
 There must be exactly one function called 'main' in every text file. The 
 value of the return of main will be printed once it has been computed.

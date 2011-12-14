@@ -1,0 +1,96 @@
+\documentclass[letterpaper, 10pt]{article}
+\usepackage[headings]{fullpage}
+\usepackage{amsmath, amsthm, amssymb, fancyhdr, mathptmx, enumerate}
+\usepackage[pdftex]{graphicx}
+\include{mathmacros}
+
+\pagestyle{fancy}
+\headheight 23pt
+\lhead{Daniel Sommermann, Michael Gummelt}
+\chead{CS240H, Historical Debugging}
+
+\title{Historical Debugging \\
+CS 240H: Functional Systems in Haskell}
+\date{16 December 2011}
+\author{
+  \begin{tabular}{c c}
+    Michael Gummelt & Daniel Sommermann \\
+    \texttt{mgummelt@cs.stanford.edu} &
+    \texttt{dcsommer@cs.stanford.edu}
+  \end{tabular}
+}
+\newcommand{\ttt}{\texttt}
+
+\begin{document}
+
+\maketitle
+
+\section{Abstract}
+For this project we decided to explore the possibility of a ``historical
+debugger.'' Consider the following scenario: a programmer wants to debug a
+piece of code, but isn't certain exactly where it goes
+wrong. Traditionally, the programmer would have to set a breakpoint at
+some arbitrary point and step through the code until some computation is
+made that the programmer recognizes as invalid. If the programmer realizes
+at a later point that the error was earlier, the debugging process must be
+started once again, re-running the code, to hopefully catch the bug the
+next time around.
+
+In our debugger, we simplify this process by allowing inspection of the
+stack on any line of code. In particular, our debugger allows the
+programmer to inspect all stacks that existed while executing a particular
+line of code. This way, a programmer can jump around to quickly pinpoint
+the source of the error without being constrained by the semantics of 
+debugging a live, running program.
+
+To make our proof of concept debugger, we defined a simple language (MGDS)
+that has functions, assignment, and integer arithmetic. We parse source
+files using Parsec into an AST. Then, a specialized interpreter is run
+over the AST, mapping line numbers to stacks. Finally, a debug loop is
+entered wherein the user can query for stack and variable information for
+any line of code. 
+
+\section{Language Definition for MGDS}
+The BNF of our language is given below
+\begin{verbatim}
+f = fn(x1, .., xn) { s; [s;] }
+
+s = var = e
+    return e
+
+e = c1 | ... | cn (constants)
+    (e)
+    x
+    e1 + e2
+    e1 - e2
+    e1 * e2
+    e1 / e2
+    e1 == e2
+    !e1
+    e1 && e2
+    e1 || e2
+    e1 == e2
+    e1 < e2
+    e1 > e2
+    if e1 then e2 else e3
+    f(e1, ..., en)
+\end{verbatim}
+
+
+\section{Parsing}
+
+\section{Interpretting and Storing}
+
+\section{Debugging}
+There are a number of commands a user can use in our proof-of-concept debugger.
+
+\section{Future Work}
+
+\section{Conclusions}
+Blah...
+
+Finally, if you are interested in seeing the details of our
+implementation, our code is available to be viewed on Github at
+\ttt{https://github.com/dcsommer/CS240H-Final-Project} .
+
+\end{document}
