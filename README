@@ -11,7 +11,7 @@ f = fn(x1, .., xn) { s; [s;] }
 
 s = var = e
     return e
-    returnif(e, e)
+    returnif e, e
 
 e = c1 | ... | cn (constants)
     (e)

@@ -7,9 +7,9 @@
 \pagestyle{fancy}
 \headheight 23pt
 \lhead{Daniel Sommermann, Michael Gummelt}
-\chead{CS240H, Historical Debugging}
+\chead{CS240H, Hindsight Debugging}
 
-\title{Historical Debugging \\
+\title{Hindsight Debugging \\
 CS 240H: Functional Systems in Haskell}
 \date{16 December 2011}
 \author{
@@ -26,7 +26,7 @@ CS 240H: Functional Systems in Haskell}
 \maketitle
 
 \section{Abstract}
-For this project we decided to explore the possibility of a ``historical
+For this project we decided to explore the feasibility of a ``hindsight
 debugger.'' Consider the following scenario: a programmer wants to debug a
 piece of code, but isn't certain exactly where it goes
 wrong. Traditionally, the programmer would have to set a breakpoint at
@@ -57,6 +57,7 @@ f = fn(x1, .., xn) { s; [s;] }
 
 s = var = e
     return e
+    returnif e, e
 
 e = c1 | ... | cn (constants)
     (e)
@@ -75,13 +76,29 @@ e = c1 | ... | cn (constants)
     if e1 then e2 else e3
     f(e1, ..., en)
 \end{verbatim}
+MGDS is not a strictly pure language since it allows you to assign to the
+same variable twice in one function. Arguments are passed by value during
+function invocation, so the previous case is the only impure part of the
+language. Also, there is no branching (besides early return via the
+\ttt{returnif} operator) or looping in our language. The choice to omit
+these constructs allowed us to quickly develop our debugger and
+language. It also simplifies our model, since with loops, the same line of
+code could be executed many, many times for a single function call. It is
+a solvable problem (run the function body and the loop as many times as
+the user specifies), but we leave this UI work for future research.
 
+MGDS has strict semantics and evaluates expressions as soon as they are
+encountered. Execution begins at the beginning of the \ttt{main()}
+function. The value returned from \ttt{main()} is echoed once it is
+computed. 
 
 \section{Parsing}
 
+
 \section{Interpretting and Storing}
 
-\section{Debugging}
+
+\section{Debugging}T
 There are a number of commands a user can use in our proof-of-concept debugger.
 
 \section{Performance}
@@ -95,6 +112,11 @@ save state and only replay the evaluation within a single function.
 <Graph of space vs time>
 
 \section{Future Work}
+There were numerous features that were cut in the interest of time. Arrays
+were our next target and would have allowed us to implement sorting
+algorithms. Support for other types besides ints was also planned.
+
+File/IO/printing + complications
 
 \section{Conclusions}
 Blah...
@@ -103,4 +125,19 @@ Finally, if you are interested in seeing the details of our
 implementation, our code is available to be viewed on Github at
 \ttt{https://github.com/dcsommer/CS240H-Final-Project} .
 
+\section{References}
+\begin{enumerate}[{[}1{]}]
+
+\item
+\ttt{http://blogs.msdn.com/b/ianhu/archive}
+
+\ttt{/2009/05/13/historical-debugging-in-visual-studio-team-system-2010.aspx}
+
+\item
+
+
+\item
+
+
+\end{enumerate}
 \end{document}
