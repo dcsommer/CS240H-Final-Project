@@ -1,6 +1,7 @@
 import Parser
 import Interpreter
 import MGDS
+import Hindsight
 
 import Control.Monad
 import System.Environment
@@ -25,7 +26,8 @@ debugLoop program = do
   debugLoop2 program
 
 debugLoop2 :: Program -> IO ()
-debugLoop2 program = do
+debugLoop2 program@(Program fenv) = do
+  let (ret, map) = run program
   putStr "> "
   hFlush stdout
   finished <- isEOF
@@ -35,7 +37,8 @@ debugLoop2 program = do
       (cmd:args) -> case cmd of
         "help"  -> showHelp
         "run"   -> putStrLn $ show ret
-                    where (ret, map) = run program
+        "s"     -> showShortState map (read (args !! 0)) fenv
+        "fs"    -> showFullState  map (read (args !! 0)) fenv
         "p"     -> putStrLn $ show program
         _       -> unknown
       _          -> unknown

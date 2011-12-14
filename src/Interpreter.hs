@@ -1,16 +1,13 @@
 -- TODO this module will interpret a Program and save state about the
 -- execution. The use case will be that you "run" a Program. Then you
 -- query the resulting state.
-module Interpreter(run) where
+module Interpreter where
 
 import MGDS
 import Data.IORef
-import Hindsight
+import HindsightTypes
+import InterpreterTypes
 import Data.Array
-
--- types
-type Env  = [(String, Integer)]
-type FEnv = [Function]
 
 getVar :: Env -> String -> Integer
 getVar env var = maybe (-1) id (lookup var env)
@@ -19,31 +16,48 @@ getFunc :: FEnv -> String -> Function
 getFunc fenv fname = head $ filter (\f -> (getName f) == fname) fenv
 
 -- run a program
-run :: Program -> (Integer, Array Integer [CallTrace])
-run (Program fenv) = (val, undefined)
+run :: Program -> (Integer, [(Int, [CallTrace])])
+run (Program fenv) = (val, lineMap)
     where main = last fenv
           (val, calls) = evalBody (getBody main) [] fenv
           tree = CallTree main [] calls
+          traces = fenvToNode fenv (tree, [])
+          lineMap = fmapToLineMap traces
 
-fenvToNode :: FEnv -> CallTree -> [(String, [CallTrace])]
-fenvToNode fenv tree = map (\f -> (getName f, funcToNode tree f)) fenv
+fmapToLineMap :: [(Function, [CallTrace])] -> [(Int, [CallTrace])]
+fmapToLineMap fm = foldl (++) [] $ map fmapToLineMap' fm 
 
-funcToNode :: CallTree -> Function -> [CallTrace]
-funcToNode tree@(CallTree nodeFunc _ subs) f =
+fmapToLineMap' :: (Function, [CallTrace]) ->
+                  [(Int, [CallTrace])]
+fmapToLineMap' (Function _ _ _ ss, trace) = fmapToLineMap'' ss trace
+
+fmapToLineMap'' :: [Statement] -> [CallTrace] -> [(Int, [CallTrace])]
+fmapToLineMap'' [] _ = []
+fmapToLineMap'' ((Assignment (LineInfo row col) _ _):ss) trace =
+    (row, trace):(fmapToLineMap'' ss trace)
+fmapToLineMap'' ((Return     (LineInfo row col) _  ):ss) trace =
+    (row, trace):(fmapToLineMap'' ss trace)
+
+fenvToNode :: FEnv -> (CallTree, Env) -> [(Function, [CallTrace])]
+fenvToNode fenv tree = map (\f -> (f, funcToNode tree f)) fenv
+
+funcToNode :: (CallTree, Env) -> Function -> [CallTrace]
+funcToNode (tree@(CallTree nodeFunc _ subs), env) f =
     traces ++ (if f == nodeFunc
-               then [[tree]]
+               then [[(tree, env)]]
                else [])
-    where traces' = foldl (++) [] (map (\t -> funcToNode t f) subs)
-          traces  = map (\t -> t ++ [tree]) traces'
+    where traces' = foldl (++) [] (map (\s -> funcToNode s f) subs)
+          traces  = map (\t -> t ++ [(tree, env)]) traces'
                  
 -- eval a list of statementsn
-evalBody :: [Statement] -> Env -> FEnv -> (Integer, [CallTree])
-evalBody [Return _ exp] env fenv = eval exp env fenv
-evalBody (s:ss)         env fenv = (val, calls ++ calls')
+evalBody :: [Statement] -> Env -> FEnv -> (Integer, [(CallTree, Env)])
+evalBody [] _ _ = undefined
+evalBody ((Return _ exp):ss) env fenv = eval exp env fenv
+evalBody (s:ss)              env fenv = (val, calls ++ calls')
     where (env', calls) = evalAssignment s env fenv
           (val, calls') = evalBody ss env' fenv
 
-evalAssignment :: Statement -> Env -> FEnv -> (Env, [CallTree])
+evalAssignment :: Statement -> Env -> FEnv -> (Env, [(CallTree, Env)])
 evalAssignment (Assignment _ var exp) env fenv = (modifyEnv env var val, calls)
     where (val, calls) = eval exp env fenv
 
@@ -55,7 +69,7 @@ modifyEnv ((var', val'):bs) var val = if var == var'
 
 
 -- eval an expression
-eval :: Expression -> Env -> FEnv -> (Integer, [CallTree])
+eval :: Expression -> Env -> FEnv -> (Integer, [(CallTree, Env)])
 
 eval (Constant _ x) _ _ = (x, [])
 eval (Var _ s) env _ = (getVar env s, [])
@@ -91,10 +105,10 @@ eval (FunctionCall _ fname es) env fenv =
         body = getBody f
         env' = zip (getParams f) vals        
         (ret, calls') = evalBody body env' fenv in
-    (ret, calls ++ [CallTree f vals calls'])
+    (ret, calls ++ [(CallTree f vals calls', env)])
 
 -- helper eval functions
-evalExpressions :: [Expression] -> Env -> FEnv -> ([Integer], [CallTree])
+evalExpressions :: [Expression] -> Env -> FEnv -> ([Integer], [(CallTree, Env)])
 evalExpressions [] _ _ = ([], [])
 evalExpressions (e:es) env fenv = (val:vals, calls ++ calls')
     where 
@@ -106,14 +120,14 @@ boolToInt False = 0
 boolToInt True = 1
                  
 intFunc :: (Integer -> Integer -> a) ->
-           Expression -> Expression -> Env -> FEnv -> (a, [CallTree])
+           Expression -> Expression -> Env -> FEnv -> (a, [(CallTree, Env)])
 intFunc op e1 e2 env fenv = (op v1 v2, calls1 ++ calls2)
     where (v1, calls1) = eval e1 env fenv
           (v2, calls2) = eval e2 env fenv
   
 boolFunc :: (Bool -> Bool -> Bool) ->
             Expression -> Expression ->
-            Env -> FEnv -> (Integer, [CallTree])
+            Env -> FEnv -> (Integer, [(CallTree, Env)])
 boolFunc op e1 e2 env fenv =
   (if op (v1 /= 0) (v2 /= 0)
    then 1

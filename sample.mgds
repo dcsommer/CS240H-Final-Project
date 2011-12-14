@@ -1,24 +1,16 @@
 // This MGDS program computes fibonacci numbers in an inefficient way
 
 // We say fib(0) = 0, fib(1) = 1, fib(2) = 1, fib(3) = 2, etc
-fib(n) {
-  return if n > 1
-         then fib(n-1) + fib(n-2)
-         else n;
+f(n) {
+  return n;
 }
 
-even(n) {
-  return if n == 0
-         then 1
-         else odd(n-1);
-}
-
-odd(n) {
-  return if n == 0
-         then 0
-         else even(n-1);
+g(x) {
+  y = 10;
+  x = y;
+  return f(x+y);
 }
 
 main() {
-  return fib(100);
+  return g(1);
 }
