@@ -1,0 +1,12 @@
+foo(arg1, arg2) {
+  tmp = arg1 * arg2;
+  result = tmp - arg1*arg1;
+  return result;
+}
+
+main() {
+  x = 5;
+  y = 12;
+  z = x - y;
+  return foo(z, y);
+}

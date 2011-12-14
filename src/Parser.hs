@@ -35,11 +35,16 @@ function = space *>
 statements :: Parser [Statement]
 statements  =  (:) <$> statement <* matchStr ";" <*> statements
            <|> pure []
-
+  
 statement :: Parser Statement
 statement  =  P.try (Return <$> lineInfo
                              <* matchStr "return "
                             <*> expression)
+          <|> P.try (ReturnIf <$> lineInfo
+                               <* matchStr "returnif "
+                              <*> expression
+                               <* matchStr ","
+                              <*> expression)
           <|> Assignment <$> lineInfo
                          <*> name
                           <* matchStr "="
