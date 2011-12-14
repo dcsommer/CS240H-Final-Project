@@ -84,6 +84,16 @@ e = c1 | ... | cn (constants)
 \section{Debugging}
 There are a number of commands a user can use in our proof-of-concept debugger.
 
+\section{Performance}
+The implementation choices we made directly trade space for time. What
+this means in particular is that in MGDS, since there is no IO or
+non-determinism, that to get the state of the program at any point, the
+debugger could just re-run the program to that exact point. However, for a
+long running program, this could take a while. With our method, we instead
+save state and only replay the evaluation within a single function.
+
+<Graph of space vs time>
+
 \section{Future Work}
 
 \section{Conclusions}

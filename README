@@ -11,6 +11,7 @@ f = fn(x1, .., xn) { s; [s;] }
 
 s = var = e
     return e
+    returnif(e, e)
 
 e = c1 | ... | cn (constants)
     (e)
@@ -30,8 +31,11 @@ e = c1 | ... | cn (constants)
     f(e1, ..., en)
 
 Every function must return a value (that is, have a return
-statement). Explicitly, there must be exactly one return statement in each
-function, and it must be the last statement in the body.
+statement). Explicitly, there must always be some return statement that is
+executed. The function can return early through the use of a
+returnif(). If the first argument to returnif is non-zero, the second
+argument is evaluated and returned. The return keyword may only be used as
+the last statement in a function body. 
 
 There must be exactly one function called 'main' in every text file. The 
 value of the return of main will be printed once it has been computed.
