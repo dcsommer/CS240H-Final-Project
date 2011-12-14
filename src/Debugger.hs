@@ -23,7 +23,8 @@ debugLoop :: Program -> IO ()
 debugLoop program = do
   putStrLn $ "Welcome to the MGDS Historical Debugger. " ++ helpHint
   debugLoop2 program
-  
+
+debugLoop2 :: Program -> IO ()
 debugLoop2 program = do
   putStr "> "
   hFlush stdout
@@ -33,7 +34,8 @@ debugLoop2 program = do
     case inputWords of
       (cmd:args) -> case cmd of
         "help"  -> showHelp
-        "run"   -> putStrLn $ show $ run program
+        "run"   -> putStrLn $ show ret
+                    where (ret, map) = run program
         "p"     -> putStrLn $ show program
         _       -> unknown
       _          -> unknown

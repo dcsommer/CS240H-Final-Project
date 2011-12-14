@@ -20,5 +20,5 @@ odd(n) {
 }
 
 main() {
-  return even(9);
+  return fib(100);
 }

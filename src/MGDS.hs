@@ -40,6 +40,9 @@ data Function = Function {
   getParams :: [String],
   getBody :: [Statement]
 } deriving Show
+
+instance Eq Function where
+    x == y = (getName x) == (getName y)
                      
 
 -- A program is simply a list of functions, one of which must be named
