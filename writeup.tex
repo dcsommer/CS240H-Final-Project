@@ -50,6 +50,15 @@ over the AST, mapping line numbers to stacks. Finally, a debug loop is
 entered wherein the user can query for stack and variable information for
 any line of code. 
 
+\section{Previous Work}
+Microsoft's Visual Studio is the only other product we are aware of that
+has similar functionality at the time of this writing, however, this
+feature, called by Microsoft ``IntelliTrace,'' is only available in the
+most expensive version of Visual Studio, which retails for thousands of
+dollars per license.
+
+Furthermore, IntelliTrace ...
+
 \section{Language Definition for MGDS}
 The BNF of our language is given below
 \begin{verbatim}
@@ -93,13 +102,40 @@ function. The value returned from \ttt{main()} is echoed once it is
 computed. 
 
 \section{Parsing}
+Parsing was made very easy using the applicative functors available in the
+Attoparsec and Parsec libraries. Using this style, the code ends up
+looking very close to the BNF used to describe the grammar in the
+first place.
 
+A first draft of the parser was first written based off the Attoparsec
+library. This implementation worked incredibly well and was performant,
+but unfortunately, Attoparsec does not support querying for cursor
+position in the stream. This makes sense as Attoparsec was designed to be
+a stripped down parser maximizing performance and not designed to generate
+nice error messages.
+
+On the other hand, Parsec is a more widely applicable parser that has
+support for querying cursor position. Parsec's default implementation of
+not ``backing out'' when an alternative fails differs from Attoparsecs,
+forcusing us to wrap many alternatives in \ttt{try} functions when
+refactoring the code.
+
+Using Parsec, there were few times I felt that a first lexing pass was
+necessary. Since parsing handles CFGs, it is of course well
+known that lexing, which covers regular expressions, can be taken care of
+in the parsing phase. Usually this is done simply for
+convenience. However, because of how flexible Haskell and the Parsec
+library is, it was relatively simple to wrap the parsing of comments and
+whitespace inside the typcial, expected parsers with little to no code
+bloat. This was a great result, and unexpected, since all my previous
+experience with writing parsers have involved orders of magnitude more
+code.
 
 \section{Interpretting and Storing}
 
 
-\section{Debugging}T
-There are a number of commands a user can use in our proof-of-concept debugger.
+\section{Debugging}
+There are a number of commands a user can use in our debugger.
 
 \section{Performance}
 The implementation choices we made directly trade space for time. What

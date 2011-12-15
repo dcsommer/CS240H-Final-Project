@@ -35,7 +35,7 @@ function = space *>
 statements :: Parser [Statement]
 statements  =  (:) <$> statement <* matchStr ";" <*> statements
            <|> pure []
-  
+
 statement :: Parser Statement
 statement  =  P.try (Return <$> lineInfo
                              <* matchStr "return "
@@ -89,11 +89,11 @@ term  =  P.try (binop Multiply "*" factor)
      <|> factor
 
 factor :: Parser Expression
-factor  =  nested
+factor  =  P.try nested
        <|> P.try ifParse
        <|> P.try functionCall
        <|> P.try (Var <$> lineInfo <*> name)
-       <|> P.try (Constant <$> lineInfo <*> (read <$> many P.digit))
+       <|> Constant <$> lineInfo <*> (read <$> P.many1 P.digit)
 
 nested :: Parser Expression
 nested = lparen *> expression <* rparen
@@ -123,7 +123,6 @@ col = do pos <- P.getPosition; return $ P.sourceColumn pos
 --- Tokenizing
 space  =  P.try (P.spaces *> comment *> space)
       <|> P.spaces
-
 matchStr op = space *> P.string op *> space
 comma   = matchStr ","
 lparen  = P.string "(" *> space

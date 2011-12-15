@@ -44,7 +44,6 @@ data Function = Function {
 
 instance Eq Function where
     x == y = (getName x) == (getName y)
-                     
 
 -- A program is simply a list of functions, one of which must be named
 -- "main" 
