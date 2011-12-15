@@ -93,7 +93,7 @@ factor  =  P.try nested
        <|> P.try ifParse
        <|> P.try functionCall
        <|> P.try (Var <$> lineInfo <*> name)
-       <|> Constant <$> lineInfo <*> (read <$> many P.digit)
+       <|> Constant <$> lineInfo <*> (read <$> P.many1 P.digit)
 
 nested :: Parser Expression
 nested = lparen *> expression <* rparen
