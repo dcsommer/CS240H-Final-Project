@@ -8,8 +8,9 @@ tetra(n) {
 }
 
 tetraLevel(n) {
-  returnif n < 2, n;
-  return tetraLevel(n-1) + n;
+  returnif n < 3, n;
+  rest = tetraLevel(n-1);
+  return rest + n;
 }
 
 main() {

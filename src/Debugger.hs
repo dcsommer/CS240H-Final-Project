@@ -27,11 +27,12 @@ showHelp = putStrLn $
  +++ "fs <line>    : prints the state of the entire stack (backtrace) at"
  +++ "               the specified line of code"
  +++ "p            : prints a representation of the AST"
+ +++ "l <line>     : print lines of code around the specified line"
  +++ "exit         : exit the debugger"
        
 unknown = putStrLn $ "Unknown command. " ++ helpHint
 
-boundLine m l = (max (l-4) 1, min m (l+4))
+boundLine m l = (max (l-5) 1, min m (l+5))
 
 printLines :: Map Int B.ByteString -> Int -> IO ()
 printLines ls at = printLines' low where
