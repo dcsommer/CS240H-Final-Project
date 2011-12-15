@@ -45,11 +45,11 @@ fenvToNode fenv tree = map (\f -> (f, funcToNode tree f)) fenv
 
 funcToNode :: (CallTree, Env) -> Function -> [CallTrace]
 funcToNode (tree@(CallTree nodeFunc _ subs), env) f =
-    traces ++ (if f == nodeFunc
-               then [[(tree, env)]]
-               else [])
-    where traces' = foldl (++) [] (map (\s -> funcToNode s f) subs)
-          traces  = map (\t -> t ++ [(tree, env)]) traces'
+    if f == nodeFunc
+    then [(tree,env)]:traces
+    else traces
+        where traces' = foldl (++) [] (map (\s -> funcToNode s f) subs)
+              traces  = map (\t -> t ++ [(tree, env)]) traces'
                  
 -- eval a list of statementsn
 evalBody :: [Statement] -> Env -> FEnv -> (Integer, [(CallTree, Env)])
@@ -63,14 +63,15 @@ evalBody ((ReturnIf _ cond exp):ss) env fenv =
               (valt, callst) = eval exp env fenv
               (vale, callse) = evalBody ss env fenv
                                
-evalBody (a@(Assignment _ _ _):ss) env fenv =
+evalBody ((a@(Assignment _ _ _)):ss) env fenv =
     (val, calls ++ calls')
         where (env', calls) = evalAssignment a env fenv
               (val, calls') = evalBody ss env' fenv
 
 evalAssignment :: Statement -> Env -> FEnv -> (Env, [(CallTree, Env)])
-evalAssignment (Assignment _ var exp) env fenv = (modifyEnv env var val, calls)
-    where (val, calls) = eval exp env fenv
+evalAssignment (Assignment _ var exp) env fenv =
+    (modifyEnv env var val, calls)
+        where (val, calls) = eval exp env fenv
 
 modifyEnv :: Env -> String -> Integer -> Env
 modifyEnv [] var val = [(var, val)]

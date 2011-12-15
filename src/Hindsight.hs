@@ -74,6 +74,11 @@ bodyToPoint (r@(ReturnIf (LineInfo row col) _ _):ss) row' =
 evalBody' :: [Statement] -> Env -> FEnv -> Env
 evalBody' [] env _ = env
 evalBody' ((Return _ exp):ss) env fenv = env
+evalBody' ((ReturnIf _ cond exp):ss) env fenv =
+    if val /= 0
+    then env
+    else evalBody' ss env fenv
+        where (val, _) = eval cond env fenv
 evalBody' (s:ss)              env fenv = evalBody' ss env' fenv
     where (env', _) = evalAssignment s env fenv
 
