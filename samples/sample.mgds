@@ -1,6 +1,3 @@
-// This MGDS program computes fibonacci numbers in an inefficient way
-
-// We say fib(0) = 0, fib(1) = 1, fib(2) = 1, fib(3) = 2, etc
 f(n) {
   return n;
 }
