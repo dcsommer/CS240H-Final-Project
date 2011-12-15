@@ -50,3 +50,6 @@ instance Eq Function where
 -- "main" 
 newtype Program = Program [Function]
                   deriving Show
+
+getFuncs :: Program -> [Function]
+getFuncs (Program fs) = fs
