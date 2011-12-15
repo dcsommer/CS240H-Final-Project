@@ -37,6 +37,8 @@ fmapToLineMap'' ((Assignment (LineInfo row col) _ _):ss) trace =
     (row, trace):(fmapToLineMap'' ss trace)
 fmapToLineMap'' ((Return     (LineInfo row col) _  ):ss) trace =
     (row, trace):(fmapToLineMap'' ss trace)
+fmapToLineMap'' ((ReturnIf   (LineInfo row col) _ _):ss) trace =
+    (row, trace):(fmapToLineMap'' ss trace)
 
 fenvToNode :: FEnv -> (CallTree, Env) -> [(Function, [CallTrace])]
 fenvToNode fenv tree = map (\f -> (f, funcToNode tree f)) fenv
@@ -53,9 +55,18 @@ funcToNode (tree@(CallTree nodeFunc _ subs), env) f =
 evalBody :: [Statement] -> Env -> FEnv -> (Integer, [(CallTree, Env)])
 evalBody [] _ _ = undefined
 evalBody ((Return _ exp):ss) env fenv = eval exp env fenv
-evalBody (s:ss)              env fenv = (val, calls ++ calls')
-    where (env', calls) = evalAssignment s env fenv
-          (val, calls') = evalBody ss env' fenv
+evalBody ((ReturnIf _ cond exp):ss) env fenv =
+    if val /= 0
+    then (valt, calls ++ callst)
+    else (vale, calls ++ callse)
+        where (val, calls)   = eval cond env fenv
+              (valt, callst) = eval exp env fenv
+              (vale, callse) = evalBody ss env fenv
+                               
+evalBody (a@(Assignment _ _ _):ss) env fenv =
+    (val, calls ++ calls')
+        where (env', calls) = evalAssignment a env fenv
+              (val, calls') = evalBody ss env' fenv
 
 evalAssignment :: Statement -> Env -> FEnv -> (Env, [(CallTree, Env)])
 evalAssignment (Assignment _ var exp) env fenv = (modifyEnv env var val, calls)

@@ -16,7 +16,7 @@ helpHint = "Type 'help' for command list."
 showHelp = putStrLn $
            "Command List:"
        +++ "help         : displays help information"
-       +++ "run          : runs the program and echos its output"
+       +++ "val          : prints the return value of the program"
        +++ "p            : prints a representation of the AST"
        
 unknown = putStrLn $ "Unknown command. " ++ helpHint
@@ -37,7 +37,7 @@ debugLoop2 program@(Program fenv) = do
     case inputWords of
       (cmd:args) -> case cmd of
         "help"  -> showHelp
-        "run"   -> putStrLn $ show ret
+        "val"   -> putStrLn $ show ret
         "s"     -> showShortState map (read (args !! 0)) fenv
         "fs"    -> showFullState  map (read (args !! 0)) fenv
         "p"     -> putStrLn $ show program

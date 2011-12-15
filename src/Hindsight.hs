@@ -61,7 +61,12 @@ bodyToPoint (a@(Assignment (LineInfo row col) _ _):ss) row' =
     then []
     else a:(bodyToPoint ss row')
          
-bodyToPoint (r@(Return (LineInfo row col) _ ):ss) row' =
+bodyToPoint (r@(Return   (LineInfo row col) _ ):ss) row' =
+    if row >= row'
+    then []
+    else r:(bodyToPoint ss row')
+
+bodyToPoint (r@(ReturnIf (LineInfo row col) _ _):ss) row' =
     if row >= row'
     then []
     else r:(bodyToPoint ss row')
@@ -83,6 +88,6 @@ chooseTrace traces =
     hFlush stdout
     input <- getLine
     let i = read input
-    return $ traces !! i
+    return $ traces !! (i - 1)
 
                  
