@@ -54,10 +54,14 @@ any line of code.
 Microsoft's Visual Studio is the only other product we are aware of that
 has similar functionality at the time of this writing, however, this
 feature, called by Microsoft ``IntelliTrace,'' is only available in the
-most expensive version of Visual Studio, which retails for thousands of
-dollars per license.
+most expensive version of Visual Studio, which retails for over twelve
+thousand dollars per license.
 
-Furthermore, IntelliTrace ...
+IntelliTrace is of course more fully-featured compared to our
+work. IntelliTrace is also mostly geared towards debugging other people's
+crashes which are hard to reproduce. The client would enable IntelliTrace
+and generate a more complete log file that would be sent to the
+responsible party for debugging.
 
 \section{Language Definition for MGDS}
 The BNF of our language is given below
@@ -101,6 +105,32 @@ encountered. Execution begins at the beginning of the \ttt{main()}
 function. The value returned from \ttt{main()} is echoed once it is
 computed. 
 
+
+\begin{figure}
+\centering
+\begin{verbatim}
+// returns the the number of balls in a triangular pyramid with
+// n balls in one side of the base
+tetra(n) {
+  returnif n < 2, n;
+  ballsHere = tetraLevel(n);
+  restOfPyramid = tetra(n-1);
+  return ballsHere + restOfPyramid;
+}
+
+tetraLevel(n) {
+  returnif n < 3, n;
+  rest = tetraLevel(n-1);
+  return rest + n;
+}
+
+main() {
+  return tetra(5);
+}
+\end{verbatim}
+\caption{A sample MGDS program}
+\end{figure}
+
 \section{Parsing}
 Parsing was made very easy using the applicative functors available in the
 Attoparsec and Parsec libraries. Using this style, the code ends up
@@ -132,10 +162,21 @@ experience with writing parsers have involved orders of magnitude more
 code.
 
 \section{Interpretting and Storing}
-
+TODO MG
 
 \section{Debugging}
-There are a number of commands a user can use in our debugger.
+There are a number of commands a user can use in our debugger. Like GDB,
+we support cursory inspection of source coude using
+\ttt{l <line number>}. You can see the result of running the program using
+\ttt{r} or \ttt{run}. To do the actual inspection you use the \ttt{s} or
+\ttt{fs} commands. Both \ttt{s} and \ttt{fs} take a line number as an
+argument and output either the state of the enclosing stack frame before
+executing that line of source code or the entire stack at the same
+point. In many programs, a single line of code is executed many times. If
+it is the case that a single line of code was executed more than once, we
+prompt the user to disambiguate which version of the stack they wish to
+inspect (i.e. the stack corresponding to the $n$th execution of that
+line).
 
 \section{Performance}
 The implementation choices we made directly trade space for time. What
@@ -145,17 +186,34 @@ debugger could just re-run the program to that exact point. However, for a
 long running program, this could take a while. With our method, we instead
 save state and only replay the evaluation within a single function.
 
-<Graph of space vs time>
-
 \section{Future Work}
 There were numerous features that were cut in the interest of time. Arrays
 were our next target and would have allowed us to implement sorting
 algorithms. Support for other types besides ints was also planned.
 
-File/IO/printing + complications
+In terms of UI, we were planning on implementing a feature that shows the
+call graph of the program. Lines of code that were executed more than once
+would be shown in the call graph annotated with a number. That number
+would be used to uniquely identify an execution of a line of code.
+
+We also would have like to experiment with \ttt{for} and \ttt{while}
+loops, but because our UI was not great for disambiguation to begin with,
+we decided it was not worth pursuing until solving the UI problems. With
+\ttt{for} loops, we would need to specify the value of the loop
+index. \ttt{while} loops would be harder since there are no predefined loop
+variables. 
+
+Finally, we avoided many issues by essentially architecting our language,
+MGDS, to have no side effects. While we do have multiple assignment to one
+variable, we don't deal with more complex issues such as IO, writing to
+files, and other externally visible side-effects. Since part of our
+assumption was that we could rerun a function up to a line of code in the
+body, we depended on the code executing deterministically each time. If we
+allow user input, random number generators, or similar, the semantics of
+our debugger could be violated.
 
 \section{Conclusions}
-Blah...
+TODO MG
 
 Finally, if you are interested in seeing the details of our
 implementation, our code is available to be viewed on Github at
@@ -170,10 +228,9 @@ implementation, our code is available to be viewed on Github at
 \ttt{/2009/05/13/historical-debugging-in-visual-studio-team-system-2010.aspx}
 
 \item
-
+\ttt{http://en.wikipedia.org/wiki/LR\_parsing}
 
 \item
-
 
 \end{enumerate}
 \end{document}
