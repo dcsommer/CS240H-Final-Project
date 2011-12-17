@@ -161,8 +161,36 @@ bloat. This was a great result, and unexpected, since all my previous
 experience with writing parsers have involved orders of magnitude more
 code.
 
-\section{Interpretting and Storing}
-TODO MG
+\section{Interpreting and Storing}
+
+\includegraphics[width=0.45\linewidth]{graph.png}
+\includegraphics[width=0.45\linewidth]{state.png}
+
+
+During interpretation, we build a call tree which is the data
+structure we use to answer queries about the history of the program.
+The call tree with no state saving information is shown above in
+figure 2.  We save two types of state snapshots, each of which is a
+set of bindings.  These snapshots are shown in figure 3 and the types
+are differentiated by color.  The first is the local bindings that
+exist in a function right after it is called, which is simply the
+params zipped with the arguments.  The red boxes above correspond to
+these snapshots, and they are stored once per node.  The second is the
+local bindings that exist in the caller right before the callee is
+called.  The green boxes correspond to these snapshots, and they are
+stored once per edge.
+
+Now, we have enough information to quickly print either the local
+bindings or the entire call trace at any point in the execution of the
+program.  After the programmer chooses a LOC and a specific execution
+of that LOC, we map this choice to a node in the above tree.  The
+local state can be quickly computed by re-executing the function up to
+the query point using the stored bindings (red).  Our programs are
+completely deterministic with no IO, thus we will always recompute the
+same state without affecting the outside world.  Determining the full
+state of the stack, including the states in the caller functions, is
+as simply as walking up the tree and printing out the stored bindings
+(green) at each edge.
 
 \section{Debugging}
 There are a number of commands a user can use in our debugger. Like GDB,
